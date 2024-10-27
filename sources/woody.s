@@ -8,12 +8,18 @@ bits 64
 %define SYS_MEMFD_CREATE 319
 %define SYS_EXECVEAT 322
 %define SYS_OPEN 2
+%define SYS_MMAP 9
 
 ; Flags for memfd_create
 %define MFD_CLOEXEC 0001h
 
 ; Flags for execveat
 %define AT_EMPTY_PATH 1000h
+
+; Flags for mmap
+%define PROT_READ 1
+%define PROT_WRITE 2
+%define MAP_SHARED 1
 
 ; Misc
 %define STDOUT 1
@@ -25,8 +31,10 @@ section .rodata
     woody db 'woody', 0
     empty_str db 0
 
-    woody_size dq 9744 ; This is the size of the packer
-    payload_size dq 1385416 ; This is the size of the payload it will unpack
+    woody_size dq 656; This is the size of the packer
+    payload_size dq 0xDEADBEEF000000FF; This is the size of the payload it will unpack
+
+    key dq 0xDEADBEEFDEADBEEF
 
 section .text
     global _start
@@ -76,8 +84,30 @@ _start:
     mov r10, [rel payload_size]
     syscall
 
+    ; Load the memfd into memory
+    mov rax, SYS_MMAP
+    mov rdi, 0x0
+    mov rsi, [rel payload_size]
+    mov rdx, PROT_READ | PROT_WRITE
+    mov rcx, MAP_SHARED
+    mov r8, r13
+    mov r9, 0
+    syscall
+
     test rax, rax
     js _exit
+
+decrypt:
+    mov rcx, 0
+    cmp rcx, [rel payload_size]
+    je end_decrypt
+    mov rax, rcx ; ptr is gone!
+    mov rbx, 8 ; divide by eight.
+    xor rdx, rdx ; clean up rdx, remainder will be stored here.
+    div rbx
+    mov byte [rax + rcx],
+
+end_decrypt:
 
     ; Execve the memory file
 
