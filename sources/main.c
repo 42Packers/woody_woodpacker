@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/27 17:53:28 by plouvel           #+#    #+#             */
-/*   Updated: 2024/10/27 19:06:35 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/10/28 12:49:32 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,39 @@
 #define OUT_FILE "woody"
 
 // deadbeef key
-static uint8_t key[8] = {0xde, 0xad, 0xbe, 0xef, 0xde, 0xad, 0xbe, 0xef};
+static uint8_t key[KEY_SIZE] = {0};
 
 void xor_cypher(uint8_t *data, size_t size)
 {
     for (size_t i = 0; i < size; i++)
-        data[i] ^= key[i % 8];
+        data[i] ^= key[i % KEY_SIZE];
+}
+
+int fill_key(void)
+{
+    int fd = -1;
+
+    if ((fd = open("/dev/urandom", O_RDONLY)) < 0)
+    {
+        return (-1);
+    }
+
+    if (read(fd, &key, KEY_SIZE) < 0)
+    {
+        close(fd);
+        return (-1);
+    }
+
+    close(fd);
+
+    return (0);
+}
+
+void print_key(void)
+{
+    for (size_t i = 0; i < KEY_SIZE; i++)
+        printf("%02X", key[i]);
+    printf("\n");
 }
 
 int main(int argc, char **argv)
@@ -39,7 +66,8 @@ int main(int argc, char **argv)
 
     if (argc != 2)
         return (1);
-
+    if (fill_key() < 0)
+        return (1);
     /* Open the out and in file. */
     if ((out_fd = open(OUT_FILE, O_WRONLY | O_CREAT | O_TRUNC, 0755)) < 0)
         return (1);
@@ -54,10 +82,12 @@ int main(int argc, char **argv)
         return (1);
     close(in_fd);
 
+    (*(uint64_t *)&WOODY[PAYLOAD_SIZE_OFFSET]) = st.st_size;
+    for (size_t i = 0; i < KEY_SIZE; i++)
+        WOODY[KEY_OFFSET + i] = key[i];
+
     /* Encrypt the file in memory. */
     xor_cypher(fptr, st.st_size);
-
-    (*(uint64_t *)&WOODY[PAYLOAD_SIZE_OFFSET]) = st.st_size;
 
     /* Write the decryptor to the out file. */
     if (write(out_fd, WOODY, WOODY_LEN) != WOODY_LEN)
@@ -68,6 +98,7 @@ int main(int argc, char **argv)
 
     close(out_fd);
 
+    print_key();
     printf("Patched binary written to %s\n", OUT_FILE);
 
     return (0);

@@ -5,7 +5,8 @@ INC		=	-I ./includes -I libft/includes
 
 
 SRCS_PATH	= ./sources/
-SRCS	=	main.c
+SRCS	=	main.c \
+		    woody.c
 
 OBJS_PATH	= ./objects/
 OBJS	=	$(addprefix $(OBJS_PATH), $(SRCS:.c=.o))
