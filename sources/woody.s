@@ -31,13 +31,17 @@ section .rodata
     woody db 'woody', 0
     empty_str db 0
 
-    woody_size dq 656; This is the size of the packer
+    woody_size dq 2080; This is the size of the packer
     payload_size dq 0xDEADBEEF000000FF; This is the size of the payload it will unpack
 
-    key dq 0xDEADBEEFDEADBEEF
+    key db 0xDE,0xAD,0xBE,0xEF,0xDE,0xAD,0xBE,0xEF
 
 section .text
     global _start
+
+; R12 stores the file descriptor of the decryptor.
+; R13 stores the file descriptor of the memfd.
+; R14 stores the memory address of the memfd.
 
 _start:
     mov rax, SYS_WRITE
@@ -89,7 +93,7 @@ _start:
     mov rdi, 0x0
     mov rsi, [rel payload_size]
     mov rdx, PROT_READ | PROT_WRITE
-    mov rcx, MAP_SHARED
+    mov r10, MAP_SHARED
     mov r8, r13
     mov r9, 0
     syscall
@@ -97,16 +101,23 @@ _start:
     test rax, rax
     js _exit
 
-decrypt:
+    mov r14, rax
+
     mov rcx, 0
+decrypt:
     cmp rcx, [rel payload_size]
     je end_decrypt
+
     mov rax, rcx ; ptr is gone!
-    mov rbx, 8 ; divide by eight.
+    mov rbx, 8 ; divide by eight (key is eight bytes).
     xor rdx, rdx ; clean up rdx, remainder will be stored here.
     div rbx
-    mov byte [rax + rcx],
-
+    mov ah, BYTE [key + rdx]
+    mov al, BYTE [r14 + rcx]
+    xor al, ah
+    mov BYTE [r14 + rcx], al
+    inc rcx
+    jmp decrypt
 end_decrypt:
 
     ; Execve the memory file

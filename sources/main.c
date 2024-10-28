@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/27 17:53:28 by plouvel           #+#    #+#             */
-/*   Updated: 2024/10/27 18:37:22 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/10/27 19:06:35 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,8 @@
 
 #define OUT_FILE "woody"
 
-uint8_t key[8] = {0x1A, 0x2B, 0x3C, 0x4D, 0x5E, 0x6F, 0x7A, 0x8B};
+// deadbeef key
+static uint8_t key[8] = {0xde, 0xad, 0xbe, 0xef, 0xde, 0xad, 0xbe, 0xef};
 
 void xor_cypher(uint8_t *data, size_t size)
 {
