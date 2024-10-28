@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/27 17:53:28 by plouvel           #+#    #+#             */
-/*   Updated: 2024/10/28 12:49:32 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/10/28 13:02:51 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ int fill_key(void)
 {
     int fd = -1;
 
-    if ((fd = open("/dev/urandom", O_RDONLY)) < 0)
+    if ((fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC)) < 0)
     {
         return (-1);
     }

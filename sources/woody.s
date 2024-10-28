@@ -19,6 +19,9 @@ bits 64
 ; Flags for execveat
 %define AT_EMPTY_PATH 0x1000
 
+; Flags for open
+%define O_CLOEXEC 0x80000
+
 ; Flags for mmap
 %define PROT_READ 0x01
 %define PROT_WRITE 0x02
@@ -50,7 +53,7 @@ _start:
     ; Open self file
     mov rax, SYS_OPEN
     mov rdi, self_path
-    xor rsi, rsi
+    mov rsi, O_CLOEXEC
     syscall
 
     test rax, rax
