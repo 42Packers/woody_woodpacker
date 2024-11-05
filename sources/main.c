@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/27 17:53:28 by plouvel           #+#    #+#             */
-/*   Updated: 2024/11/05 13:57:48 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/11/05 16:41:40 by aweaver          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <sys/sendfile.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include "woody.h"
 
 #define OUT_FILE "woody"
@@ -43,7 +44,6 @@ static int fill_key(void)
 		close(fd);
 		return (-1);
 	}
-
 	close(fd);
 
 	return (0);
@@ -56,6 +56,37 @@ void print_key(void)
 	printf("\n");
 }
 
+int get_key_from_arg(char *str)
+{
+	size_t	key_offset = 0;
+	const char dict[] = "0123456789ABCDEF";
+	if (strlen(str) != 64)
+	{
+		printf("invalid len %s\n", str);
+		return (1);
+	}
+	for (int i = 0; str[i]; i++)
+	{
+		char *found = strchr(dict, str[i]);
+		if (found == NULL)
+		{
+			printf("%c not found\n", str[i]);
+			return (1);
+		}
+		uint8_t index = found - dict;
+		if (i % 2 == 0)
+		{
+			key[key_offset] = 16 * index;
+		}
+		else
+		{
+			key[key_offset] += index;
+			key_offset++;
+		}
+	}
+	return (0);
+}
+
 int main(int argc, char **argv)
 {
 	uint8_t *fptr = NULL;
@@ -64,12 +95,21 @@ int main(int argc, char **argv)
 	int ret = 1;
 	struct stat st;
 
-	if (argc != 2)
+	printf("len = %lu\n", strlen(argv[2]));
+	if (argc < 2 || argc > 3)
 	{
-		fprintf(stderr, "Usage: %s <file>\n", argv[0]);
+		fprintf(stderr, "Usage: %s <file>\n\t%s <file> <key>\n\tkey must be 64 characters long [0-9][A-F].\n", argv[0], argv[0]);
 		return (1);
 	}
-	if (fill_key() < 0)
+	if (argc == 3)
+	{
+		if (get_key_from_arg(argv[2]) == 1)
+		{
+			fprintf(stderr, "Key provided is invalid.\n");
+			return (1);
+		}
+	}
+	if (argc != 3 && fill_key() < 0)
 	{
 		fprintf(stderr, "Error: cannot generate random key.\n");
 		return (1);
