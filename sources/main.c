@@ -53,12 +53,12 @@ int main(int argc, char **argv)
 			end_of_text_segment = curr_phdr->p_offset + curr_phdr->p_filesz;
 			parasite_virtual_address = curr_phdr->p_vaddr + original_text_segment_file_size;
 
-			curr_phdr->p_filesz += STUB_LEN;
-			curr_phdr->p_memsz += STUB_LEN;
+			curr_phdr->p_filesz += stub_bin_len;
+			curr_phdr->p_memsz += stub_bin_len;
 
 			for (size_t j = i + 1; j < ehdr->e_phnum; j++)
 			{
-				Elf64_Phdr *next_phdr = fileptr + ehdr->e_phoff + (ehdr->e_phentsize * j);
+				Elf64_Phdr *next_phdr = (Elf64_Phdr *)(fileptr + ehdr->e_phoff + (ehdr->e_phentsize * j));
 
 				if (next_phdr->p_offset > curr_phdr->p_offset + original_text_segment_file_size)
 				{
@@ -81,13 +81,16 @@ int main(int argc, char **argv)
 		{
 			puts("Patched last section of the text segment");
 			/* Increase the last section of the text segment so it contains the parasite code so it remaisn strip-safe. */
-			curr_shdr->sh_size += STUB_LEN;
+			curr_shdr->sh_size += stub_bin_len;
 		}
 		else if (curr_shdr->sh_addr == 0 && curr_shdr->sh_type != SHT_NULL)
 		{
 			curr_shdr->sh_offset += page_size;
 		}
 	}
+
+	*(uint64_t *)(&stub_bin[0x1c4]) = (uint64_t)parasite_virtual_address;
+	*(uint64_t *)(&stub_bin[0x1cc]) = (uint64_t)ehdr->e_entry;
 
 	ehdr->e_shoff += page_size;
 	ehdr->e_entry = parasite_virtual_address;
@@ -100,8 +103,8 @@ int main(int argc, char **argv)
 	}
 
 	write(out_fd, fileptr, end_of_text_segment);
-	write(out_fd, STUB, STUB_LEN);
-	lseek(out_fd, page_size - STUB_LEN, SEEK_CUR);
+	write(out_fd, stub_bin, stub_bin_len);
+	lseek(out_fd, page_size - stub_bin_len, SEEK_CUR);
 	fileptr += end_of_text_segment;
 	write(out_fd, fileptr, fs.st_size - end_of_text_segment);
 	close(out_fd);

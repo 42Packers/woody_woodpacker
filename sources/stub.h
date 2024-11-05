@@ -6,9 +6,9 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/31 17:32:40 by plouvel           #+#    #+#             */
-/*   Updated: 2024/10/31 17:36:28 by plouvel          ###   ########.fr       */
+/*   Updated: 2024/11/04 18:05:55 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-extern unsigned char STUB[];
-extern unsigned int STUB_LEN;
+extern unsigned char stub_bin[];
+extern unsigned int stub_bin_len;
