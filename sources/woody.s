@@ -29,7 +29,9 @@ bits 64
 
 ; Misc
 %define STDOUT 1
-%define KEY_LENGTH_IN_BYTES 32
+%define KEY_LENGTH_IN_BYTES 0x20
+%define KEY_MASK 0x1F
+
 
 section .rodata
     message db "....WOODY....", 0Ah, 0
@@ -37,7 +39,7 @@ section .rodata
     self_path db '/proc/self/exe', 0
     empty_str db 0
 
-    woody_size dq 776; This is the size of the packer.
+    woody_size dq 1976; This is the size of the packer.
     payload_size dq 0xDEADBEEF000000FF; This is the size of the payload it will unpack. This will get replaced by the injector.
 
     key db KEY_LENGTH_IN_BYTES dup(0xDF) ; This is the key it will use.
@@ -103,22 +105,17 @@ _start:
 
     mov r14, rax
 
-    mov rcx, 0
+	mov rcx, [rel payload_size]
+	inc rcx
 decrypt:
-    cmp rcx, [rel payload_size]
-    je end_decrypt
-
-    mov rax, rcx
-    mov rbx, KEY_LENGTH_IN_BYTES
-    xor rdx, rdx
-    div rbx
-    mov ah, BYTE [key + rdx]
-    mov al, BYTE [r14 + rcx]
-    xor al, ah
-    mov BYTE [r14 + rcx], al
-    inc rcx
-    jmp decrypt
-end_decrypt:
+	mov rbx, rcx
+	dec rbx
+	AND rbx, KEY_MASK
+	mov ah, BYTE [key + rbx]
+	mov al, BYTE [r14 + rcx - 1]
+	xor al, ah
+	mov BYTE [r14 + rcx - 1], al
+	loop decrypt
 
     mov rax, SYS_WRITE
     mov rdi, STDOUT
