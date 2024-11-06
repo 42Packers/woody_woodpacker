@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/27 17:53:28 by plouvel           #+#    #+#             */
-/*   Updated: 2024/11/05 16:41:40 by aweaver          ###   ########.fr       */
+/*   Updated: 2024/11/06 10:34:49 by aweaver          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,6 @@ int main(int argc, char **argv)
 	int ret = 1;
 	struct stat st;
 
-	printf("len = %lu\n", strlen(argv[2]));
 	if (argc < 2 || argc > 3)
 	{
 		fprintf(stderr, "Usage: %s <file>\n\t%s <file> <key>\n\tkey must be 64 characters long [0-9][A-F].\n", argv[0], argv[0]);
