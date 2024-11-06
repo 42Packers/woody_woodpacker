@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/27 17:53:28 by plouvel           #+#    #+#             */
-/*   Updated: 2024/11/06 10:34:49 by aweaver          ###   ########.fr       */
+/*   Updated: 2024/11/06 12:04:40 by aweaver          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,23 +61,15 @@ int get_key_from_arg(char *str)
 	size_t	key_offset = 0;
 	const char dict[] = "0123456789ABCDEF";
 	if (strlen(str) != 64)
-	{
-		printf("invalid len %s\n", str);
 		return (1);
-	}
 	for (int i = 0; str[i]; i++)
 	{
 		char *found = strchr(dict, str[i]);
 		if (found == NULL)
-		{
-			printf("%c not found\n", str[i]);
 			return (1);
-		}
 		uint8_t index = found - dict;
 		if (i % 2 == 0)
-		{
 			key[key_offset] = 16 * index;
-		}
 		else
 		{
 			key[key_offset] += index;
