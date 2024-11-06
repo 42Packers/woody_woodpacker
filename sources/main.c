@@ -6,7 +6,7 @@
 /*   By: plouvel <plouvel@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/27 17:53:28 by plouvel           #+#    #+#             */
-/*   Updated: 2024/11/06 12:04:40 by aweaver          ###   ########.fr       */
+/*   Updated: 2024/11/06 12:23:59 by plouvel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,18 +58,24 @@ void print_key(void)
 
 int get_key_from_arg(char *str)
 {
-	size_t	key_offset = 0;
+	size_t key_offset = 0;
 	const char dict[] = "0123456789ABCDEF";
 	if (strlen(str) != 64)
+	{
 		return (1);
+	}
 	for (int i = 0; str[i]; i++)
 	{
 		char *found = strchr(dict, str[i]);
 		if (found == NULL)
+		{
 			return (1);
+		}
 		uint8_t index = found - dict;
 		if (i % 2 == 0)
+		{
 			key[key_offset] = 16 * index;
+		}
 		else
 		{
 			key[key_offset] += index;
@@ -87,7 +93,7 @@ int main(int argc, char **argv)
 	int ret = 1;
 	struct stat st;
 
-	if (argc < 2 || argc > 3)
+	if (argc != 2 && argc != 3)
 	{
 		fprintf(stderr, "Usage: %s <file>\n\t%s <file> <key>\n\tkey must be 64 characters long [0-9][A-F].\n", argv[0], argv[0]);
 		return (1);
@@ -96,7 +102,7 @@ int main(int argc, char **argv)
 	{
 		if (get_key_from_arg(argv[2]) == 1)
 		{
-			fprintf(stderr, "Key provided is invalid.\n");
+			fprintf(stderr, "Error: key provided is invalid.\n");
 			return (1);
 		}
 	}
