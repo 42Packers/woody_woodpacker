@@ -39,7 +39,7 @@ section .rodata
     self_path db '/proc/self/exe', 0
     empty_str db 0
 
-    woody_size dq 1976; This is the size of the packer.
+    woody_size dq 768; This is the size of the packer.
     payload_size dq 0xDEADBEEF000000FF; This is the size of the payload it will unpack. This will get replaced by the injector.
 
     key db KEY_LENGTH_IN_BYTES dup(0xDF) ; This is the key it will use.
