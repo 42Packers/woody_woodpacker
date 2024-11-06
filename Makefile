@@ -1,11 +1,11 @@
 NAME	= woody_woodpacker
 
 CC		=	gcc
-INC		=	-I ./includes -I libft/includes
 
 
 SRCS_PATH	= ./sources/
-SRCS	=	main.c
+SRCS	=	main.c \
+		    woody.c
 
 OBJS_PATH	= ./objects/
 OBJS	=	$(addprefix $(OBJS_PATH), $(SRCS:.c=.o))
@@ -15,29 +15,19 @@ DEPS	= 	$(OBJS:.o=.d)
 CFLAGS = -Wall -Wextra -Werror
 CPPFLAGS = -MMD -c -g3
 
+all: $(NAME)
 
-LIBFT		=   libft/libft.a
-
-all:	build
-
-$(NAME):	$(OBJS) $(LIBFT)
-			@$(MAKE) --no-print-directory -C libft/
-			$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -o $@
+$(NAME):	$(OBJS)
+			$(CC) $(CFLAGS) $(OBJS) -o $@
 
 $(OBJS_PATH)%.o:	$(SRCS_PATH)%.c
-			mkdir -p $(OBJS_PATH)
-			$(CC) $(CPPFLAGS) $(CFLAGS) $< -o $@ $(INC)
-
-libft:
-			@$(MAKE) --no-print-directory -C libft/
-
-build:		libft $(NAME)
+			@mkdir -p $(OBJS_PATH)
+			$(CC) $(CPPFLAGS) $(CFLAGS) $< -o $@
 
 clean:
 			rm -rf $(OBJS_PATH)
 
 fclean:		clean
-			$(MAKE) --no-print-directory -C libft/ fclean
 			rm -rf $(NAME)
 
 re:			fclean
